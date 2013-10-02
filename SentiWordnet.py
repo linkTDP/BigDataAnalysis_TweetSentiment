@@ -236,17 +236,7 @@ def main():
             avg_obj_score=obj_score/count
             avg_pos_score=pos_score/count
             avg_neg_score=neg_score/count
-#         etichetta=""
-#         if sent_score <= 0.25:
-#             etichetta = "molto negativo"
-#         elif sent_score <= 0.40 and sent_score > 0.25:
-#             etichetta ="negativo"
-#         elif sent_score <= 0.60 and sent_score > 0.40:
-#             etichetta ="neutro"
-#         elif sent_score <= 0.75 and sent_score > 0.60:
-#             etichetta ="positivo"
-#         elif sent_score > 0.75:
-#             etichetta ="molto positivo"
+
         print "pos_total : "+str(pos_score)+" - neg_ total: "+str(neg_score)+" - count : "+str(count)+" -> "+(" positivo " if pos_score > neg_score else ("negativo" if pos_score < neg_score else "neutro"))
         print "obj :"+str(avg_obj_score) + " || (CE) pos : "+str(avg_pos_score)+" - (CE) neg : "+str(avg_neg_score)+" -> "+(" positivo " if avg_pos_score > avg_neg_score else ("negativo" if avg_pos_score < avg_neg_score else "neutro"))
 #         print "CE score -> pos : "+str(pos_ce)+ " - neg : "+str(neg_ce)+" - pos_score : "+str(score_pos_ce)+" - neg_score : "+str(score_neg_ce) 
