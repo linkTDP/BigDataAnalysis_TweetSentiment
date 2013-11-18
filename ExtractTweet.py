@@ -51,7 +51,7 @@ class StdOutListener(StreamListener):
     def on_data(self, data):
         
         a = json.loads(data,encoding='utf-8')    
-        if a['lang'] == 'en':
+        if a['lang'] == 'en' and len(a['text']) > 100:
             special=[";",r"\r\n"]
         
             current=a['text']
@@ -71,6 +71,8 @@ class StdOutListener(StreamListener):
     def on_error(self, status):
         print status
 
+
+
 if __name__ == '__main__':
     twitter_configs = get_twitter_configs()
     count = twitter_configs.count
@@ -84,7 +86,7 @@ if __name__ == '__main__':
                           twitter_configs.access_token_secret)
 
         stream = Stream(auth, l)
-        print len(twitter_configs.filter)
+        
         if len(twitter_configs.filter) > 0:
             stream.filter(track=[twitter_configs.filter])
         else:

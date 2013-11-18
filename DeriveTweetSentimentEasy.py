@@ -5,7 +5,7 @@ twitterData = sys.argv[1] #csv file
 
 def tweet_dict(twitterData):  
     ''' (file) -> list of dictionaries
-    This method should take your output.txt
+    This method should take your .csv
     file and create a list of dictionaries.
     '''
     twitter_list_dict = []
@@ -30,15 +30,12 @@ def sentiment_dict(sentimentData):
     return scores # Print every (term, score) pair in the dictionary
 
 def main():
-
     tweets = tweet_dict("char.csv")
     sentiment = sentiment_dict("AFINN-111.txt")
     
-
-    
-
-    #Calculating sentiment scores for the whole tweet with unknown terms set to score of zero
-    #then accumulate a dictionary of list of values with each new term occurance with the new term as key.
+    """Calculate sentiment scores for the whole tweet with unknown terms set to score of zero
+    then accumulates a dictionary of list of values: new term -> new entry that has the word as key.
+    """
     for index in range(len(tweets)):
         
         tweet_word = tweets[index].split()

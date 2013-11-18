@@ -88,7 +88,7 @@ class SentiSynset:
 
 def tweet_dict(twitterData):  
     ''' (file) -> list of dictionaries
-    This method should take your output.txt
+    This method should take your .csv
     file and create a list of dictionaries.
     '''
     twitter_list_dict = []    
@@ -99,27 +99,9 @@ def tweet_dict(twitterData):
     return twitter_list_dict
 
 
-def sentiment_dict(sentimentData):
-    ''' (file) -> dictionary
-    This method should take your sentiment file
-    and create a dictionary in the form {word: value}
-    '''
-    afinnfile = open(sentimentData)
-    scores = {} # initialize an empty dictionary
-    for line in afinnfile:
-        pos, id, posScore, negScore,synsetTerms, gloss  = line.split("\t")  # The file is tab-delimited. "\t" means "tab character"
-        try:
-            score=0
-            if float(negScore) <> 0:
-                score = float(posScore)
-            else:
-                score = -float(posScore) 
-            scores[pos+synsetTerms] = score  # Convert the score to an integer.
-        except:
-            pass
-    return scores # Print every (term, score) pair in the dictionary
 
-# return true if a word ia a stopword
+
+# return true if a string ia a stopword
 def is_stopword(string):
     if string.lower() in nltk.corpus.stopwords.words('english'):
         return True
@@ -133,7 +115,7 @@ def is_punctuation(string):
             return False
     return True
 
-# 
+# Translation from nltk to Wordnet (words tag) (code)
 def wordnet_pos_code(tag):
     if tag.startswith('NN'):
         return wordnet.NOUN
@@ -146,6 +128,7 @@ def wordnet_pos_code(tag):
     else:
         return ''
 
+# Translation from nltk to Wordnet (words tag) (label)
 def wordnet_pos_label(tag):
     if tag.startswith('NN'):
         return "Noun"
@@ -158,6 +141,10 @@ def wordnet_pos_label(tag):
     else:
         return tag
 
+""" input -> a sentence 
+    otput -> sentence in which each words is enriched of -> lemma, wordnet_pos, wordnet_definitions 
+
+"""
 def wordnet_definitions(sentence):
     wnl = nltk.WordNetLemmatizer()
     for token in sentence:
@@ -176,6 +163,7 @@ def wordnet_definitions(sentence):
             pass
     return sentence
 
+#Tokenization
 
 def tag_tweet(tweet):    
     sents = nltk.sent_tokenize(tweet)
@@ -189,14 +177,16 @@ def tag_tweet(tweet):
     return sentence
 
 
-def word_sense_disambiguate(word, wn_pos, sentence):
+# WSD
+
+def word_sense_disambiguate(word, wn_pos, tweet):
     senses = wordnet.synsets(word, wn_pos)
     if len(senses) >0:
         cfd = nltk.ConditionalFreqDist(
                (sense, def_word)
                for sense in senses
                for def_word in sense.definition.split()
-               if def_word in sentence)
+               if def_word in tweet)
         best_sense = senses[0] # start with first sense
         for sense in senses:
             try:
@@ -217,29 +207,62 @@ def main():
         obj_score = 0 # object score 
         pos_score=0 # positive score
         neg_score=0 #negative score
+        pos_score_tre=0
+        neg_score_tre=0
+        threshold = 0.75
         count = 0
+        count_tre = 0
+        
+        """
+        Conversion from plain text to SentiWordnet scores
+        """
+         
         for word in a:
             if 'punct' not in word :
                 sense = word_sense_disambiguate(word['word'], wordnet_pos_code(word['pos']), tweets[index])
                 if sense is not None:
                     sent = sentiment.senti_synset(sense.name)
-                    if sent is not None:
+                    # Extraction of the scores
+                    if sent is not None and sent.obj_score <> 1:
                         obj_score = obj_score + float(sent.obj_score)
                         pos_score = pos_score + float(sent.pos_score)
                         neg_score = neg_score + float(sent.neg_score)
                         count=count+1
+                        print str(sent.pos_score)+ " - "+str(sent.neg_score)+ " - "+ str(sent.obj_score)+" - "+sent.synset.name
+                        if sent.obj_score < threshold:
+                            pos_score_tre = pos_score_tre + float(sent.pos_score)
+                            neg_score_tre = neg_score_tre + float(sent.neg_score)
+                            count_tre=count_tre+1
         print tweets[index]
-        avg_obj_score=0
+        
+        #Evaluation by different methods
+        
         avg_pos_score=0
         avg_neg_score=0
+        avg_neg_score_tre=0
+        avg_neg_score_tre=0
+        
+        #2
+        
         if count <> 0:
-            avg_obj_score=obj_score/count
+            
             avg_pos_score=pos_score/count
             avg_neg_score=neg_score/count
+        
+        #3
+        
+        if count_tre <> 0:
+            avg_pos_score_tre=pos_score_tre/count_tre
+            avg_neg_score_tre=neg_score_tre/count_tre
 
+        #pint results
+        #1
         print "pos_total : "+str(pos_score)+" - neg_ total: "+str(neg_score)+" - count : "+str(count)+" -> "+(" positivo " if pos_score > neg_score else ("negativo" if pos_score < neg_score else "neutro"))
-        print "obj :"+str(avg_obj_score) + " || (CE) pos : "+str(avg_pos_score)+" - (CE) neg : "+str(avg_neg_score)+" -> "+(" positivo " if avg_pos_score > avg_neg_score else ("negativo" if avg_pos_score < avg_neg_score else "neutro"))
-#         print "CE score -> pos : "+str(pos_ce)+ " - neg : "+str(neg_ce)+" - pos_score : "+str(score_pos_ce)+" - neg_score : "+str(score_neg_ce) 
+        #2
+        print "(AVG) pos : "+str(avg_pos_score)+" - (AVG) neg : "+str(avg_neg_score)+" -> "+(" positivo " if avg_pos_score > avg_neg_score else ("negativo" if avg_pos_score < avg_neg_score else "neutro"))
+        #3
+        if count_tre > 0:
+            print "(AVG_TRE) pos : "+str(avg_pos_score_tre)+" - (AVG_TRE) neg : "+str(avg_neg_score_tre)+" -> "+(" positivo " if avg_pos_score_tre > avg_neg_score_tre else ("negativo" if avg_pos_score_tre < avg_neg_score_tre else "neutro"))
         print ""
 
 

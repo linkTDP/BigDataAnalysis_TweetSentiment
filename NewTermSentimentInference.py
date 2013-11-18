@@ -33,10 +33,11 @@ def main():
 
     tweets = tweet_dict(twitterData)
     sentiment = sentiment_dict("AFINN-111.txt")
-
     accum_term = dict()
     
-    #Calculating sentiment scores for the whole tweet with unknown terms set to score of zero
+    """Calculating sentiment scores for the whole tweet with unknown terms set to score of zero
+    See -> DeriveTweetSentimentEasy
+    """
 
     for index in range(len(tweets)):
         
@@ -63,17 +64,25 @@ def main():
         for word in term_list:
             accum_term[word].append(sent_score) # for each new word assign to this word the sentiment of the tweet
 
+    """Derive the sentiment of new terms
+    """
+
     for key in accum_term.keys():
         adjusted_score = 0
         term_value = 0
         total_sum = 0
         for score in accum_term[key]:
             total_sum = total_sum + score
+        
+        """if a word is present in more tweet -> to the word is assigned the average of the sentiment of the tweets that contain it 
+        """
                     
-        term_value = (total_sum)/len(accum_term[key]) #if a word is present in more tweet assigns the average of the sentiment of the tweets that contain it. 
+        term_value = (total_sum)/len(accum_term[key]) 
         
         adjusted_score = "%.3f" %term_value
         print key.encode('utf-8') + " " + adjusted_score
+
+
 
 if __name__ == '__main__':
     main()
