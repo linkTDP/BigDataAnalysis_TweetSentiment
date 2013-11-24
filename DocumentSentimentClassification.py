@@ -7,7 +7,7 @@ from apiclient.discovery import build
 
 
 
-FILE_NAME='review.txt'
+FILE_NAME='review_bad.txt'
 API_KEY_BING=''
 API_KEY_GOOGLE=''
 USE_GOOGLE = False 
@@ -78,8 +78,6 @@ def request_bing(query, **params):
     return float(r.json()['d']['results'][0]['WebTotal'])
 
 
-
-
 # return true if a word ia a stopword
 def is_stopword(string):
     if string.lower() in nltk.corpus.stopwords.words('english'):
@@ -93,8 +91,6 @@ def is_punctuation(string):
         if char.isalpha() or char.isdigit():
             return False
     return True
-
-
 
 
 #Tokenization
@@ -133,7 +129,7 @@ def main():
     
     excellent_BING=request_bing("excellent")
     poor_BING=request_bing("poor")
-    if g is not None:
+    if 'g' in locals():
         excellent_GOOGLE=g.count("excellent")
         poor_GOOGLE=g.count("poor")
     
@@ -145,63 +141,74 @@ def main():
         for a in t.evaluate_phrase(tokenizer(phrase.encode('ascii', 'ignore'))):
             print a
             term1_term2_e = request_bing(a+" excellent")
-            term2= request_bing(a)
             term1_term2_p = request_bing(a+" poor")
-#             pmi_excelent =math.log( float(pygoogle(a+" excellent").get_result_count()) / float(pygoogle("excellent").get_result_count()) * float(pygoogle(a).get_result_count()),2)
-            
+
             print "---BING"
             
-            print 'excellent : '+str(excellent_BING)
-            print 'poor : '+str(poor_BING)
-            print 'only phrase : '+str(term2)
-            print ' + excellent :'+str(term1_term2_e)
-            print ' + poor :'+str(term1_term2_p)
+            print 'hits excellent : '+str(excellent_BING)
+            print 'hits poor : '+str(poor_BING)
+            print 'hits + excellent :'+str(term1_term2_e)
+            print 'hits + poor :'+str(term1_term2_p)
             
-            pmi_excelent =math.log( (term1_term2_e / (excellent_BING * term2)) ,2)
-            pmi_poor =math.log( (term1_term2_p / (poor_BING * term2)) ,2)
+            if 'accum_ex_bing' not in locals():
+                accum_ex_bing=excellent_BING
+            else:
+                accum_ex_bing=accum_ex_bing*excellent_BING
+            if 'accum_po_bing' not in locals():
+                accum_po_bing=poor_BING
+            else:
+                accum_po_bing=accum_po_bing*poor_BING
+            if 'accum_tex_bing' not in locals():
+                accum_tex_bing=term1_term2_e
+            else:
+                accum_tex_bing=accum_tex_bing*term1_term2_e
+            if 'accum_tpo_bing' not in locals():
+                accum_tpo_bing=term1_term2_p
+            else:
+                accum_tpo_bing=accum_tpo_bing*term1_term2_p
             
-            print 'pmi excellent : '+str(pmi_excelent)
-            print 'pmi poor : '+str(pmi_poor)
-            
-            pmi_sentence_BING = pmi_excelent - pmi_poor
-            
-            avg_pmi_BING = avg_pmi_BING + pmi_sentence_BING
-            
+
             count = count +1
-            
-            print 'pmi sentence : '+str(pmi_sentence_BING)
+
             
             print ''
             
-            if g is not None:
+            if 'g' in locals():
                 term1_term2_e = g.count(a+" excellent")
-                term2= g.count(a)
                 term1_term2_p = g.count(a+" poor")
+
+
                 print "---GOOGLE"
-            
-                print 'excellent : '+str(excellent_GOOGLE)
-                print 'poor : '+str(poor_GOOGLE)
-                print 'only phrase : '+str(term2)
-                print ' + excellent :'+str(term1_term2_e)
-                print ' + poor :'+str(term1_term2_p)
-            
-                pmi_excelent =math.log( (term1_term2_e / (excellent_GOOGLE * term2)) ,2)
-                pmi_poor =math.log( (term1_term2_p / (poor_GOOGLE * term2)) ,2)
-            
-                print 'pmi excellent : '+str(pmi_excelent)
-                print 'pmi poor : '+str(pmi_poor)
-            
-                pmi_sentence_GOOGLE = pmi_excelent - pmi_poor
-            
-                avg_pmi_GOOGLE = avg_pmi_GOOGLE + pmi_sentence_GOOGLE
-            
-            
-                print 'pmi sentence : '+str(pmi_sentence_GOOGLE)
-            
+                
+                print 'hits excellent : '+str(excellent_GOOGLE)
+                print 'hits poor : '+str(poor_GOOGLE)
+                print 'hits + excellent :'+str(term1_term2_e)
+                print 'hits + poor :'+str(term1_term2_p)
+                
+                if 'accum_ex_google' not in locals():
+                    accum_ex_google=excellent_GOOGLE
+                else:
+                    accum_ex_google=accum_ex_google*excellent_GOOGLE
+                if 'accum_po_google' not in locals():
+                    accum_po_google=poor_GOOGLE
+                else:
+                    accum_po_google=accum_po_google*poor_GOOGLE
+                if 'accum_tex_google' not in locals():
+                    accum_tex_google=term1_term2_e
+                else:
+                    accum_tex_google=accum_tex_google*term1_term2_e
+                if 'accum_tpo_google' not in locals():
+                    accum_tpo_google=term1_term2_p
+                else:
+                    accum_tpo_google=accum_tpo_google*term1_term2_p
+                
                 print ''
+    
+    
             
-    print 'BING       sentence text : '+str(avg_pmi_BING / count)
-    print 'GOOGLE     sentence text : '+str(avg_pmi_GOOGLE / count)
+    print 'BING       sentence text : '+str(math.log((accum_tex_bing*accum_po_bing)/(accum_ex_bing*accum_tpo_bing),2))
+    if 'g' in locals():
+        print 'GOOGLE     sentence text : '+str(math.log((accum_tex_google*accum_po_google)/(accum_ex_google*accum_tpo_google),2))
             
 
 if __name__ == '__main__':
