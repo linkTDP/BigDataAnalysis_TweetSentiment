@@ -58,3 +58,14 @@ it possible to set some configuration parameters in the top of Python script:
 - API_KEY_BING -> Api Key Bing [http://it.bing.com/dev/en-us/dev-center](Bing Dev)
 - API_KEY_GOOGLE -> Api Key for Custom Search Api [https://cloud.google.com/console](Google Api Console)
 - USE_GOOGLE -> Enable (True) or Disable (False) the use of the Google Api for Custom Search ( 100 query for day without have to pay )
+
+### ipython ###
+
+For an interactive example with ipython, go into the folder 'BDA_Senti_ipython' and launch the command:
+
+	$ ipython notebook --pylab inline
+	
+###[Slides](http://www.slideshare.net/faigg/tutotial-of-sentiment-analysis)###
+
+
+
