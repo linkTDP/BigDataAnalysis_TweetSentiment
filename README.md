@@ -61,7 +61,7 @@ it possible to set some configuration parameters in the top of Python script:
 
 ### ipython ###
 
-For an interactive example with ipython, go into the folder 'BDA_Senti_ipython' and launch the command:
+For an interactive example with ipython, go into the folder `BDA_Senti_ipython` and launch the command:
 
 	$ ipython notebook --pylab inline
 	
